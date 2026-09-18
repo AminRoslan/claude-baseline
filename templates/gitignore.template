@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.turbo/
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+
+# OS
+.DS_Store
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# ---------------------------------------------------------------------------
+# Agent tooling and working documents.
+#
+# THIS IS A POLICY CHOICE, NOT A DEFAULT. Read it before keeping it.
+#
+# It suits a repository with one engineer who works on one machine and moves
+# work by copying the directory. What a reader of such a repository should see
+# is the code and whether it ships, not how one person's development
+# environment is wired.
+#
+# It is the WRONG choice for a team: shared conventions, plans and decision
+# records belong in the repo where everyone can review and amend them, and an
+# ignored docs/ directory means the only copy lives on somebody's laptop.
+#
+# Two practical consequences worth knowing before adopting it:
+#   - `*.md` ignores README files in subdirectories too. Un-ignore any you
+#     actually want tracked, the way !README.md does below.
+#   - Anything under the ignored directories is invisible to code review by
+#     construction. That is the point, and it is also the risk.
+# ---------------------------------------------------------------------------
+
+# Whole directory, not just settings.local.json: .claude/worktrees/ holds real
+# checkouts with their own node_modules, and nothing under it is shared.
+.claude/
+
+# Markdown is a personal working artefact here, not a deliverable.
+*.md
+!README.md
+CLAUDE.md
+
+# Keeps agent sessions out of directories that should stay walled off.
+.claudeignore
+
+# Agent scratch space
+.worktrees/
+.superpowers/

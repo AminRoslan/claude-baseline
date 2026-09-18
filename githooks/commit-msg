@@ -1,0 +1,32 @@
+#!/bin/sh
+# Reject AI attribution trailers in commit messages.
+#
+# Install globally, not per-repo:
+#
+#   mkdir -p "$HOME/.githooks"
+#   cp commit-msg "$HOME/.githooks/commit-msg"
+#   chmod +x "$HOME/.githooks/commit-msg"
+#   git config --global core.hooksPath "$HOME/.githooks"
+#
+# Two limitations, both accepted rather than worked around:
+#
+#   1. A global core.hooksPath REPLACES per-repo hooks. Any repository relying
+#      on its own .git/hooks stops running them. Check before setting this on a
+#      machine that has per-repo hooks worth keeping.
+#   2. `git commit --no-verify` bypasses it entirely. This is a guard against
+#      forgetting, not against intent, and nothing client-side can be more
+#      than that.
+#
+# Global is the right scope anyway: it covers every repository on the machine,
+# including ones that do not exist yet, and it leaves no trace inside any
+# project. An in-repo enforcement artefact would itself advertise that AI is
+# used, which is the thing being avoided.
+
+msg_file="$1"
+
+if grep -Eiq 'co-authored-by:|^claude-session:|generated with|🤖' "$msg_file"; then
+  echo "commit-msg: AI attribution detected. Remove the trailer and commit again." >&2
+  exit 1
+fi
+
+exit 0

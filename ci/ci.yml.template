@@ -1,0 +1,96 @@
+name: CI
+
+# pnpm + Turborepo monorepo, single job.
+#
+# Placeholders: {{NODE_VERSION}}, {{DEFAULT_BRANCH}}, {{E2E_PACKAGE}}.
+# Delete the MongoDB cache step and the e2e step if they do not apply.
+#
+# One job on purpose. Splitting unit and e2e into parallel jobs looks faster and
+# is not: each job pays its own checkout, Node setup, pnpm install and cache
+# restore. On the repo this came from, install alone was 37s against an e2e run
+# of 22s. Parallelise when a step is slow enough to be worth a second install,
+# not before.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  # The default branch also runs on push. On a free GitHub plan the branch
+  # protection API returns 403 ("Upgrade to GitHub Pro or make this repository
+  # public"), so a direct push cannot be prevented. This at least makes one
+  # visible and attributable. Preventing a bad DEPLOY is a separate mechanism —
+  # see deploy-staging.yml.template, which gates on this same suite.
+  push:
+    branches:
+      - "{{DEFAULT_BRANCH}}"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "{{NODE_VERSION}}"
+
+jobs:
+  ci:
+    name: Build, lint, typecheck, test
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      # Only if the test suite uses mongodb-memory-server. Without this the
+      # binary is downloaded on every run.
+      - name: Load MongoDB binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: ${{ runner.os }}-mongodb-${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Lint
+        run: pnpm run lint:verify
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Unit tests
+        run: pnpm run test
+
+      # An e2e suite with its own vitest config is NOT covered by
+      # `turbo run test`, so a green `pnpm run test` says nothing about it.
+      # Check this explicitly for your repo before assuming it is redundant —
+      # on the repo this came from, this suite held every cross-tenant
+      # regression and had never once run outside a developer's laptop.
+      - name: End-to-end tests
+        run: pnpm --filter {{E2E_PACKAGE}} test:e2e
+
+# Deliberately absent: dependency-audit and dead-code steps.
+#
+# They were here with continue-on-error: true, which means they could never
+# fail a build. Both exited non-zero on a normal tree, so both had become
+# decoration — read once, then ignored forever. Either make such a step
+# blocking (which first requires clearing whatever it currently reports) or
+# leave it out and run it on demand. A permanently-red advisory step is worse
+# than no step, because it teaches everyone to ignore a red mark.

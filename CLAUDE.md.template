@@ -1,0 +1,84 @@
+# {{PROJECT_NAME}}
+
+{{ONE_LINE_WHAT_THIS_IS}}. {{STACK_SUMMARY}}.
+
+{{ONE_LINE_WHAT_IT_DOES_FOR_A_USER}}.
+
+<!--
+  Structure only. Every section below earns its place by answering a question an
+  agent gets wrong without it. Delete any section you cannot fill with something
+  specific — an empty heading trains readers to skim, and a skimmed CLAUDE.md is
+  the same as no CLAUDE.md.
+
+  The single most common failure is writing what the repository already says.
+  "Uses TypeScript", "tests live in test/", "run pnpm install first" are all
+  derivable from the tree in ten seconds and cost you attention on the lines
+  that are not.
+-->
+
+## Gotchas (not inferable from the tree)
+
+<!--
+  The highest-value section. Each entry should be something that has ALREADY
+  cost someone an hour. If you are writing one speculatively, it belongs in a
+  comment next to the code instead.
+
+  Shapes that qualify:
+    - A tool pinned to an old major because a newer one breaks on this platform.
+      Say which platform and how it fails.
+    - A local environment that differs from production in a way that changes
+      behaviour, not just performance.
+    - Two sibling projects that deliberately use different tooling, so nobody
+      "helpfully" unifies them.
+    - A branch or environment where a merge is a real deployment.
+    - An ignore policy that makes a category of file invisible.
+    - Where design tokens or brand values actually come from, when it is not
+      the obvious place.
+-->
+
+- **{{GOTCHA}}** — {{WHY_IT_BITES_AND_WHAT_TO_DO}}.
+
+## Non-negotiable
+
+<!--
+  Rules that hold regardless of how small the change looks. Keep this list
+  short enough that breaking one is conspicuous. Four is a good number; ten
+  means none of them are load-bearing.
+-->
+
+- {{TRUST_BOUNDARY_RULE}} — e.g. which inputs are untrusted, and what that requires.
+- {{COVERAGE_RULE}} — e.g. new logic starts with a failing test; a bug fix reproduces first.
+- {{TENANCY_OR_AUTHZ_RULE}} — e.g. every query touching scoped data carries its ownership predicate, and cross-boundary access needs an explicit regression test.
+- **Completion gate:** not done until {{GATE_COMMANDS}} pass locally.
+
+## Commands
+
+<!-- What to run, and the difference between the checking and fixing variants. -->
+
+- `{{LINT_VERIFY}}` — check-only, what CI runs. `{{LINT_FIX}}` auto-fixes.
+- `{{BUILD}}` · `{{TYPECHECK}}` · `{{TEST}}` · `{{DEV}}`
+- {{E2E_COMMAND}}
+
+## Test discipline
+
+<!--
+  Write this only once a real cross-cutting break has happened, and describe
+  that break. A rule with an incident attached gets followed; a rule without
+  one gets rationalised away at the first inconvenience.
+-->
+
+{{THE_INCIDENT_AND_WHAT_IT_MEANS_FOR_HOW_YOU_RUN_TESTS}}
+
+## Modules / structure
+
+<!--
+  Only if the codebase has a numbering or naming scheme with a history. If two
+  schemes have ever collided, say which one won and on what date — that
+  ambiguity costs more than any other kind here.
+-->
+
+## Skills and rules
+
+<!-- Pointers, not content. One line each: when to reach for it. -->
+
+- {{TASK_SHAPE}} → `{{SKILL_NAME}}`

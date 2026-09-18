@@ -1,0 +1,3 @@
+# The baseline does not carry its own scaffolding output
+*.local
+bootstrap-test/

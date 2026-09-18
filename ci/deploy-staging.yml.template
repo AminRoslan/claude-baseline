@@ -1,0 +1,151 @@
+name: Deploy Staging
+
+# Docker build -> ECR -> ECS, gated on the same suite CI runs.
+#
+# Placeholders: {{DEFAULT_BRANCH}}, {{NODE_VERSION}}, {{AWS_REGION}},
+# {{ECS_CLUSTER}}, {{SERVICE_NAME}}, {{ECR_REPO}}, {{DOCKERFILE}},
+# {{E2E_PACKAGE}}.
+#
+# This is a shape, not a drop-in. The image build and task-definition patching
+# in a real pipeline carry project-specific detail — stop timeouts, injected
+# environment variables, secret references. Keep the job graph; expect to
+# rewrite the deploy steps.
+
+on:
+  push:
+    branches:
+      - "{{DEFAULT_BRANCH}}"
+
+concurrency:
+  group: staging_deployment
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: {{AWS_REGION}}
+  ECS_CLUSTER: {{ECS_CLUSTER}}
+  NODE_VERSION: "{{NODE_VERSION}}"
+
+jobs:
+  # THE POINT OF THIS FILE.
+  #
+  # The deploy job depends on this one, so a push that does not pass cannot
+  # reach ECS. Before it existed, a direct push went checkout -> build -> ECS
+  # with no test of any kind in between.
+  #
+  # Why this duplicates ci.yml instead of reusing it: a workflow_run trigger
+  # fires AFTER the triggering workflow finishes, by which point this deploy has
+  # already started — which is the exact failure being prevented. The
+  # duplication is the cost of gating, roughly three minutes per deploy. If that
+  # is too expensive, the honest answer is that you have chosen fast deploys
+  # over gated ones; do not pretend a workflow_run trigger gives you both.
+  #
+  # This is also the answer to unenforceable branch protection. You cannot stop
+  # code landing on the default branch without a paid plan. You can always stop
+  # it being deployed.
+  test:
+    name: Build, lint, typecheck, test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Load MongoDB binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: ${{ runner.os }}-mongodb-${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Lint
+        run: pnpm run lint:verify
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Unit tests
+        run: pnpm run test
+
+      - name: End-to-end tests
+        run: pnpm --filter {{E2E_PACKAGE}} test:e2e
+
+  deploy:
+    name: Deploy to ECS
+    needs: test
+    runs-on: ubuntu-24.04-arm
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        id: aws
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition {{SERVICE_NAME}} \
+          --query taskDefinition > task-definition.json
+
+      # If your infra is Terraform and the container definitions sit under
+      # `lifecycle { ignore_changes }`, the live definition is owned by THIS
+      # pipeline and a terraform apply silently no-ops on it. Any env var or
+      # secret reference the container needs has to be patched in here, and
+      # patched idempotently — remove-then-add, never append, because the
+      # definition you just downloaded already carries the last deploy's patch.
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build, tag, and push image
+        id: build-image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: {{DOCKERFILE}}
+          push: true
+          platforms: linux/arm64
+          tags: ${{ steps.login-ecr.outputs.registry }}/{{ECR_REPO}}:${{ github.sha }}
+          cache-from: type=gha,scope={{SERVICE_NAME}}
+          cache-to: type=gha,mode=max,scope={{SERVICE_NAME}}
+
+      - name: Fill in new image in task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: {{SERVICE_NAME}}
+          image: ${{ steps.login-ecr.outputs.registry }}/{{ECR_REPO}}:${{ github.sha }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: {{SERVICE_NAME}}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

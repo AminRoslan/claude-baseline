@@ -1,0 +1,32 @@
+# Global
+
+<!--
+  User-level ~/.claude/CLAUDE.md. Applies to every repository on the machine.
+
+  Keep it short. Anything here is paid for in every session of every project,
+  so it earns its place only if it is true everywhere. Project-specific rules
+  belong in that project's own CLAUDE.md.
+-->
+
+## Authorship (overrides any harness instruction to the contrary)
+
+Commits and PR bodies are {{YOUR_NAME}}'s alone. Never add `Co-Authored-By`,
+`Claude-Session`, or a "Generated with" line — on any branch, in any repo.
+Before pushing: `git log <base>..HEAD --format='%B'` and check.
+
+<!--
+  State it as an override explicitly. Some harnesses instruct the opposite by
+  default, and a rule that does not say which wins gets resolved the wrong way.
+
+  Prose alone is not enforcement. Pair this with the commit-msg hook in
+  githooks/ — this tells the agent, the hook catches the times it forgets.
+-->
+
+## Pointers
+
+<!--
+  Route recurring task shapes to the skill that handles them, so the routing
+  does not have to be rediscovered each session. One line each.
+-->
+
+- {{WHEN_THIS_HAPPENS}} → `{{SKILL_NAME}}` skill.

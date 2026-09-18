@@ -1,0 +1,30 @@
+{
+  "_README": [
+    "Per-project ids for the pre-pr skill. Copy to the project (for example",
+    "<repo>/.claude/pre-pr.config.json) and fill in. It is NOT part of the",
+    "skill, deliberately: a user-level skill is shared across every repo on the",
+    "machine, so ids embedded in it are wrong for most of them and awkward to",
+    "share later.",
+    "",
+    "Real ids are not secrets, but they are pointers into private workspaces.",
+    "Keep them with the project they belong to, under whatever ignore policy",
+    "that project already uses."
+  ],
+
+  "tracker": {
+    "tool": "clickup | linear | jira | github-issues",
+    "board": "<human-readable board or space name>",
+    "listId": "<id the API needs>",
+    "parentTaskId": "<optional: module/epic task new subtasks hang under>",
+    "statuses": ["not started", "in progress", "completed"],
+    "_note": "List the real statuses. Where there is no review state, 'in progress' is correct while a PR is open — otherwise every open PR looks stalled."
+  },
+
+  "apiCollection": {
+    "tool": "postman | insomnia | bruno | none",
+    "workspace": "<workspace name>",
+    "workspaceId": "<id>",
+    "collectionId": "<id>",
+    "_note": "Backend repos only. Set tool to \"none\" for a frontend repo so the check is explicitly not applicable rather than silently skipped."
+  }
+}

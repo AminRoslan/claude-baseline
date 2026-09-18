@@ -1,0 +1,63 @@
+{
+  "_README": [
+    "Template for ~/.claude/settings.json. bootstrap.ps1 replaces {{USERPROFILE}}",
+    "with the real profile path and strips these _README keys.",
+    "",
+    "There is deliberately NO autoMode key here. On the machine this baseline was",
+    "extracted from, autoMode.environment had grown into a written description of the",
+    "org's whole infrastructure - cloud account number, every cluster and service name,",
+    "which secrets were held properly and which were sitting in plaintext. That content",
+    "is genuinely useful to a session and must never be committed anywhere. Author it",
+    "per-machine, directly in the live settings.json, and leave it out of version control.",
+    "",
+    "settings.local.json is likewise never templated: it holds per-machine permission",
+    "grants that often name real infrastructure."
+  ],
+
+  "permissions": {
+    "defaultMode": "auto"
+  },
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"{{USERPROFILE}}\\.claude\\hooks\\node-version-context.ps1\"",
+            "async": false
+          }
+        ]
+      }
+    ],
+
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"{{USERPROFILE}}\\.claude\\hooks\\block-main-push.ps1\"",
+            "async": false
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"{{USERPROFILE}}\\.claude\\hooks\\require-ui-verify.ps1\"",
+            "async": false
+          }
+        ]
+      }
+    ]
+  },
+
+  "theme": "dark"
+}
