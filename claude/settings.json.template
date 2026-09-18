@@ -53,6 +53,12 @@
             "type": "command",
             "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"{{USERPROFILE}}\\.claude\\hooks\\require-ui-verify.ps1\"",
             "async": false
+          },
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"{{USERPROFILE}}\\.claude\\hooks\\require-completion-gate.ps1\"",
+            "async": false,
+            "timeout": 180
           }
         ]
       }

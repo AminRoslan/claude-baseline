@@ -165,6 +165,26 @@ and costing a lookup to decode each one.
 **Rule:** `<type>/<kebab-summary>`, nothing else. The tracker link goes in the PR
 body where it is clickable.
 
+### A rewritten branch left its originals behind
+
+A `filter-branch` had stripped AI attribution trailers from a feature branch, and
+the work reached the trunk under new SHAs. What nobody cleaned up was
+`refs/original/`, which `filter-branch` writes as a safety net — so two commits
+carrying `Co-Authored-By` and a session URL survived in the local object store
+for months, unreachable from any branch and invisible to every normal command.
+
+**Rule:** a history rewrite is not finished at the push. Delete `refs/original/`,
+expire the reflog and `gc --prune=now`, and confirm with
+`git log --all --format='%H %B' | grep -i` that nothing survives.
+
+Before deleting, prove the work survives elsewhere — and compare **patches, not
+trees**. Trees diverge legitimately whenever the branch was rebased, which looks
+alarming and means nothing. Even `git patch-id` can differ on a rebased commit
+because it accounts for context lines; when it does, diff the two diffs and check
+that only blob hashes and hunk offsets moved. Then check whether the remote holds
+the objects at all (`gh api repos/<o>/<r>/commits/<sha>`, or the host's
+equivalent) so you know whether local deletion is actually sufficient.
+
 ### Attribution enforced outside the repository
 
 The authorship rule was prose in a config file with nothing behind it.
@@ -177,6 +197,31 @@ advertises that AI is used, which defeats its own purpose.
 Accepted limits, stated rather than papered over: a global `core.hooksPath` replaces
 per-repo hooks everywhere, and `--no-verify` bypasses it. It is a guard against
 forgetting, not against intent. Nothing client-side can be more than that.
+
+### A completion rule nobody checked
+
+"Not done until build, lint, typecheck and the test suite pass locally" sat in a
+CLAUDE.md with nothing behind it. No hook, no commit gate, nothing.
+
+**Rule:** `require-completion-gate.ps1` on the Stop event runs the two cheap
+halves for real and blocks the turn on failure. Build and tests stay in CI,
+because running all four costs about 45 seconds per turn and a hook that slow
+gets switched off within a week.
+
+That split is only honest if CI actually blocks. It became true here in the same
+pass: CI now runs on pull requests and on pushes to the trunk, and the staging
+deploy depends on it. Inheriting the split into a project whose CI is advisory
+would be cargo-culting the shape of a rule without the thing that makes it work.
+
+### Three author spellings, one engineer
+
+`git shortlog -sn` reported one person as three, across two email addresses. The
+expensive half is not the miscount: it is `git log --author=<spelling>` silently
+returning nothing, which reads as an answer rather than a miss.
+
+**Rule:** a `.mailmap` at the repo root, canonicalising every spelling to one
+identity. Leave automation identities alone — a web-UI merge really was made by
+the web UI, and collapsing that into a person makes the history less accurate.
 
 ### PR descriptions written as a conversation
 
