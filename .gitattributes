@@ -1,0 +1,4 @@
+# Git for Windows runs hooks through sh. A CRLF shebang fails with a
+# "bad interpreter" error naming a path with a stray carriage return.
+githooks/* text eol=lf
+*.sh text eol=lf
