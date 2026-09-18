@@ -291,13 +291,47 @@ knowingly rather than inherited.
 
 ---
 
-## Open
+## Plugins
 
-### Plugin set
+Audited by one question: **what breaks if this is removed?** An unanswerable
+question is the answer — it means nothing depends on it and nobody would notice.
 
-Twelve plugins were installed on the source machine, including two always-on output
-modifiers and two skill collections with overlapping scope. Each needs a one-sentence
-answer to "what breaks if this is removed"; anything unanswerable is a removal
-candidate.
+Thirteen entries on the source machine, ten enabled. The useful finding was not
+which to drop; it was that **two plugins were load-bearing for configuration
+outside themselves**, which nothing in the plugin list tells you:
 
-Not yet done. Survivors and reasons belong in this file when it is.
+- The secret-scanning plugin's cache directory holds two hook scripts that the
+  machine's `settings.json` points at by absolute path. Disabling the plugin
+  silently breaks two configured hooks.
+- An output-style plugin's cache directory holds the `statusLine` command, path
+  including a content hash. Disabling it breaks the status line.
+
+**Rule:** before removing a plugin, grep `settings.json` for its cache path. A
+plugin is not only the skills it advertises; anything can point into its
+directory, and the reference does not survive the uninstall.
+
+Beyond that the audit sorted into three groups.
+
+*Load-bearing, keep:* the ones providing MCP tools for services the project
+actually uses (auth, database, deploy), document generation that produced real
+deliverables, and the process-skill collection that injects a session-start
+discipline.
+
+*Style, keep but understand:* always-on output modifiers change how an agent
+writes and what it chooses to build. Nothing breaks without them, which makes
+them easy to mistake for dead weight — they are preference, not decoration, and
+should be a deliberate keep rather than an accidental one.
+
+*Removal candidates, all failing the question:* a single-skill plugin whose skill
+is never invoked; a web-guidance plugin whose main content is browser-extension
+skills for a project with no browser extension; and a 37-skill engineering
+collection that overlaps the process-skill collection almost entirely (code
+review, debugging, implementation). Overlapping collections are the worst case,
+because whichever loads second silently shadows the other and you cannot tell
+which guidance you actually got.
+
+A plugin that was already disabled is a finding too: one had been turned off
+because it shipped a browser-automation server that collided with a
+manually-configured one pointed at the browser this machine actually has. That
+is the collision recorded above, and the disabled entry is the fix — worth a
+comment so nobody re-enables it.
