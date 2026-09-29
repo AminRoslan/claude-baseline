@@ -9,9 +9,14 @@ a rule whose incident cannot happen in your project is dead weight, and the poin
 recording the reasoning is to make the baseline **prunable** rather than
 cargo-cult.
 
+**Starting a new project, or an agent session on an unfamiliar one?** Read
+[`START-HERE.md`](START-HERE.md) first. It is the front door: what to read, in what
+order, and the non-negotiables that apply everywhere.
+
 ## What is here
 
 ```
+START-HERE.md              front door: read order, non-negotiables, new-repo setup
 CLAUDE.md.template         project-level CLAUDE.md, structure with placeholders
 claude/
   CLAUDE.md.template       user-level ~/.claude/CLAUDE.md

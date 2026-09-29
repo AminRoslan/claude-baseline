@@ -198,6 +198,30 @@ Accepted limits, stated rather than papered over: a global `core.hooksPath` repl
 per-repo hooks everywhere, and `--no-verify` bypasses it. It is a guard against
 forgetting, not against intent. Nothing client-side can be more than that.
 
+### Installing a dev dependency silently disabled that gate
+
+A later project added Husky for conventional-commit linting. Husky sets
+`core.hooksPath` to `.husky/_` **repo-locally**, and a repo-local setting overrides
+the global one. So the machine-wide attribution gate stopped running in that
+repository the moment the install finished. No error, no warning, no output. The
+guard was simply gone, and the only way to notice was to reason about why two
+mechanisms configure the same git setting.
+
+This is the failure mode the entry above did not anticipate. The gate is not
+bypassed by someone choosing to bypass it; it is bypassed by routine tooling that
+has no idea the gate exists.
+
+**Rule:** any repository that installs Husky, or anything else that writes
+`core.hooksPath`, re-implements the attribution check inside its own
+`.husky/commit-msg`, with a comment stating that the duplication is deliberate and
+why. Duplication is correct here. A single source would be a single point of silent
+failure.
+
+**Generalised:** when a tool configures the same setting a security control relies
+on, assume the tool wins and verify. Check `git config core.hooksPath` after
+installing anything that touches git plumbing. A control that can be switched off
+without producing output is a control you do not have.
+
 ### A completion rule nobody checked
 
 "Not done until build, lint, typecheck and the test suite pass locally" sat in a
