@@ -82,6 +82,39 @@ questions in the list below. **That block is never committed anywhere.**
 
 ---
 
+## Machine still prompts for every action
+
+Symptom: one machine runs without asking, a new one asks yes/no on nearly every
+command. Three separate causes, check in this order. All checks are read-only.
+
+```powershell
+claude --version
+Select-String -Path $env:USERPROFILE\.claude\settings.json -Pattern 'defaultMode|autoMode'
+Get-ChildItem .claude\settings*.json -ErrorAction SilentlyContinue   # in the project
+```
+
+Then run `/status` inside a session to see the mode actually in force.
+
+1. **`permissions.defaultMode` is not `"auto"`.** `bootstrap.ps1 -InstallUserConfig`
+   writes it from the template, but the machine may never have run it, or a project
+   `.claude/settings*.json` or a Shift+Tab change in the session overrides it.
+   Fix: run the bootstrap, or set `"permissions": {"defaultMode": "auto"}` by hand.
+2. **`defaultMode` is `auto` but there is no `autoMode.environment` block.** This is
+   the usual one. The template omits the block on purpose (see below), so a fresh
+   machine gets auto mode with no description of what is trusted. The safety check
+   then treats `aws`, `gh`, private repos and anything named prod as unknown and
+   prompts. Fix: author the block per machine, or copy it from a working machine
+   over USB or a private channel. Never through git or Drive.
+3. **Auto mode is not available on that install.** It depends on the Claude Code
+   version, plan and model, not on any file here. Update Claude Code first; if
+   `/status` still will not offer auto, it is an account matter, not config.
+
+`settings.local.json` (the `autoMode.allow` list, `permissions.allow`) is likewise
+per machine and never templated. Missing it costs a few extra prompts, not all of
+them.
+
+---
+
 ## The environment block, and why it is not in this repo
 
 A working setup has a written map of the environment that the agent reads every
