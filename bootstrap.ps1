@@ -11,7 +11,7 @@
   Three independent parts, each opt-in past the first:
 
     (default)            repo files: .gitignore, CLAUDE.md, .github/workflows/
-    -InstallUserConfig   ~/.claude: settings.json, CLAUDE.md, hooks, skills
+    -InstallUserConfig   ~/.claude: settings.json, CLAUDE.md, hooks, skills, agents
     -InstallGitHook      ~/.githooks/commit-msg + git config --global core.hooksPath
 
   The last two are machine-level and affect every repository on the machine.
@@ -158,6 +158,11 @@ if ($InstallUserConfig) {
     Write-Scaffold -Destination (Join-Path $claudeDir "hooks/$($hook.Name)") `
       -Content ([System.IO.File]::ReadAllText($hook.FullName)) `
       -Note $(if ($hook.Name -eq 'require-ui-verify.ps1') { 'configure the $roots table' } else { '' })
+  }
+
+  foreach ($agent in Get-ChildItem (Join-Path $BaselineRoot 'claude/agents') -Filter *.md) {
+    Write-Scaffold -Destination (Join-Path $claudeDir "agents/$($agent.Name)") `
+      -Content ([System.IO.File]::ReadAllText($agent.FullName))
   }
 
   foreach ($file in Get-ChildItem (Join-Path $BaselineRoot 'claude/skills') -Recurse -File) {

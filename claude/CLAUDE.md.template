@@ -30,3 +30,20 @@ Before pushing: `git log <base>..HEAD --format='%B'` and check.
 -->
 
 - {{WHEN_THIS_HAPPENS}} → `{{SKILL_NAME}}` skill.
+
+## Advisor
+
+<!--
+  Needs advisorModel in settings.json. A soft rule: nothing forces the call, so
+  measure how often it actually happens before trusting it (see DECISIONS.md).
+-->
+
+The advisor model is on call. It reads the session and advises; it does not take
+over. Ask it:
+
+- before committing to a big plan
+- when the same error comes back
+- before calling a long task done
+
+Delegate: "how does X work" → `explorer`; edits plus tests → `worker`; docs
+lookups → `researcher`. Never default to the built-in `Explore`.

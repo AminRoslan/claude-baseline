@@ -295,6 +295,34 @@ not survive.
 
 ---
 
+### An advisor model and three workers, set up on trust
+
+Setup: a Sonnet main session at `high` effort, a stronger model on call through
+`advisorModel`, and three subagents (`explorer` reads, `worker` edits and runs
+tests, `researcher` looks things up) on Sonnet at `medium` effort. The idea is
+that the expensive model weighs in only at the moments that change the outcome:
+before a plan, when an error repeats, before "done".
+
+What the source machine learned setting it up:
+
+- **The advisor rule is soft.** It is a paragraph in CLAUDE.md; nothing forces
+  the call. The first session after setup skipped it on cases that plainly fit.
+  Count `"name":"advisor"` in the session transcripts after a week and keep,
+  tighten or drop it on that number, not on how sensible it sounds.
+- **Overlapping readers.** The built-in `Explore`, a plugin's haiku locator and
+  `explorer` all answer "where is X". Left unranked, routing is inconsistent.
+  The CLAUDE.md names one per question shape.
+- **A plugin editor agent is not a worker.** One had no Bash, so it could not run
+  tests, and no `effort` field, so it inherited the session's `high`. Not
+  interchangeable with an implementer that verifies.
+- **Effort has two layers.** `effortLevel` is only the default for models with no
+  saved per-model level. `/effort` writes a `modelSettings` entry keyed by the
+  *pinned* model id, and that entry wins. The template deliberately omits it: it
+  names a version, and aliases are the rule.
+- **Restore gap.** `bootstrap.ps1` copied settings, hooks and skills but not
+  agents, so a restore would have come up without the workers and reported
+  success. Agents are now part of `-InstallUserConfig`.
+
 ## Ignore policy
 
 The source repository ignores `*.md` (except `README.md`) and the whole agent config

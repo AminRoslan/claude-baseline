@@ -22,6 +22,7 @@ claude/
   CLAUDE.md.template       user-level ~/.claude/CLAUDE.md
   settings.json.template   shareable settings — deliberately no environment context
   hooks/                   four PowerShell hooks, all fail-open (see hooks/README.md)
+  agents/                  explorer, worker, researcher (sonnet, medium effort)
   skills/
     _TEMPLATE/             the shape a domain skill takes
     pre-pr/                pre-PR checklist, ids kept in a project-local config
