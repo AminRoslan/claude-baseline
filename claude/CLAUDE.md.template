@@ -46,4 +46,4 @@ over. Ask it:
 - before calling a long task done
 
 Delegate: "how does X work" → `explorer`; edits plus tests → `worker`; docs
-lookups → `researcher`. Never default to the built-in `Explore`.
+lookups → `researcher`. Never default to the built-in `Explore`. Use `general-purpose` only when no named agent fits.
