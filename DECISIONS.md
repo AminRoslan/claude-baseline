@@ -256,6 +256,83 @@ PR bodies were written as replies to the conversation that produced the change â
 disagreeing with along with the alternative that was rejected. A PR that only says
 what it did invites a review that only checks whether it works.
 
+### Combined branches broke what each passed alone
+
+A dozen PRs were open at once, several stacked, several touching the same screens.
+Every one passed the full verification command and CI on its own. Merged into one
+test branch they conflicted in four places and broke a fixture field that one PR
+removed and another still used; no CI run could show it because the PRs were never
+built together.
+
+**Rule:** before handing a test branch to a human, merge every open head into it,
+run the full verification command, and put each cross-PR resolution into a PR
+branch (not only the test branch) so the merge order stays valid. Say what was left
+out and why.
+
+---
+
+## Front-end and UX
+
+Sources for the rules below: the WeWeb front-end design guide and Smart Interface
+Design Patterns on loading and progress UX. Both are linked from
+`claude/skills/frontend-ux/SKILL.md`.
+
+### A toggle that loaded one side at a time
+
+A screen toggled between money in and money out. Only the active side was fetched,
+sequentially, because each request was an expensive read on the server; switching
+emptied the list and refetched, and every tab switch remounted the table and
+refetched again. The owner found the toggle slow and asked why both sides were not
+loaded together.
+
+**Rule:** data that a toggle, tab or filter switches between is loaded together and
+the switch makes zero requests and shows no empty state. Keep a cache that survives
+remounts (stale while revalidate, keyed by record and version, cleared on sign-out),
+invalidate after every write, run independent requests in parallel, and apply the
+user's action optimistically with a visible rollback. A server cost that justified
+one-at-a-time loading is a reason to fix the server, not to make the user wait.
+
+### Loading states designed last
+
+First loads showed the word "Loading" or a blank area, with no skeleton and no
+progress for the multi-second loads, and no rule for when to show anything.
+
+**Rule:** choose the indicator by expected wait. Under about one second, none. One
+to three seconds, a skeleton that matches the real layout. Three to ten, a
+determinate bar. Ten or more, progress, a percentage and a status line, and let the
+user keep working. Delay a skeleton about 350 ms and keep it about 400 ms once
+shown so it neither flashes nor flickers. Never stack spinners. Design the loading,
+empty, error, success and partial states with the ideal one.
+
+### One accent colour doing two jobs
+
+The same orange marked the primary action, the selected tab, progress bars, links
+and the active menu item. Twelve to twenty-six pale "OK" buttons competed with a
+selected toggle on one screen, and the next step on the case screen was one of
+four equal buttons.
+
+**Rule:** one primary action per screen, and a selected state must not look like
+the primary action. Show where the user is and what comes next; say each fact once.
+
+### Dialogs without a way out
+
+All fourteen dialog states had no close icon, two closed without returning focus,
+and one did not close on Escape.
+
+**Rule:** every dialog has a visible close control, Escape, and returns focus to the
+element that opened it. A dialog that must not be dismissed says so in its copy.
+
+### A browser test outside the one command
+
+The browser smoke test ran only as its own CI workflow. Three PRs in one day
+passed the full local command and then failed it in CI on a locator that no longer
+matched the text. The local command was supposed to match CI.
+
+**Rule:** when a check is cheap enough to run locally (about 40 seconds here), it
+belongs in the one verification command. Keep CI's split into jobs if the browser
+needs its own runtime, but name the halves so that together they are exactly the
+local command.
+
 ---
 
 ## Configuration

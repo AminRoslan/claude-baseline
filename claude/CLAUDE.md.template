@@ -30,6 +30,21 @@ Before pushing: `git log <base>..HEAD --format='%B'` and check.
 -->
 
 - {{WHEN_THIS_HAPPENS}} → `{{SKILL_NAME}}` skill.
+- Building or changing any screen, list, toggle, table, form, dialog or loading behaviour → `frontend-ux` skill.
+
+## Front-end UX baseline (always)
+
+<!--
+  Short on purpose: the detail lives in the frontend-ux skill and only loads when
+  a UI task needs it. These five lines are the part worth paying for every session.
+  Incidents behind each: DECISIONS.md, "Front-end and UX".
+-->
+
+- Design every state, not only the ideal one: loading, empty, error, success, partial. Test with realistic long content, between breakpoints, and by keyboard.
+- Loading by wait time: under 1 s no indicator; 1 to 3 s a skeleton that matches the layout; 3 to 10 s determinate progress; 10 s or more progress, percentage and status, and let the user keep working. Never stack spinners.
+- A toggle or tab between sets of data loads all sets together and switches with zero requests and no empty flash. Cache and revalidate in the background, parallelise independent requests, apply user actions optimistically with a visible rollback.
+- One primary action per screen, one number per fact, plain words. Every dialog has a close icon, Escape and focus return.
+- Verify with the one command, and make the browser smoke part of it.
 
 ## Advisor
 

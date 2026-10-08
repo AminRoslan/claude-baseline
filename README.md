@@ -26,6 +26,8 @@ claude/
   skills/
     _TEMPLATE/             the shape a domain skill takes
     pre-pr/                pre-PR checklist, ids kept in a project-local config
+    frontend-ux/           every UI state, loading patterns by wait time, preloading
+                           toggles, optimistic UI, density, accessibility, vitals
 githooks/
   commit-msg               attribution gate, installed globally
 ci/
