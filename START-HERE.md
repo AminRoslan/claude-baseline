@@ -51,6 +51,10 @@ These are not preferences. Carry them into any repo unless he says otherwise.
   enforces this, and `githooks/commit-msg` here is the source of it.
 - **Small PRs, one concern each.** A PR that needs the word "and" to describe it is
   two PRs.
+- **Run a QA pass before a batch reaches staging or production.** build, integrate,
+  QA pass, fix, decide, ship, each stage with a gate. The `qa-pass` skill carries the
+  procedure; a green verify on every PR is not a substitute, because the pass this
+  came from found more than a hundred defects behind green PRs.
 - **Comments carry rationale, not narration.** Explain why a non-obvious choice was
   made, name the incident or constraint behind it. Do not restate what the code says.
 - **Commit and push only when asked.** If on the default branch, branch first.
@@ -150,6 +154,7 @@ Portable ones worth copying into any project:
 |---|---|
 | `pre-pr` | Before opening any PR. Branch and base selection, scoping, authorship check. |
 | `qa-verification` | After implementing anything, before claiming it works. |
+| `qa-pass` | Before a batch of PRs reaches staging or production, after a feature wave, or on request. The whole strict-QA loop. |
 | `security-review` | Before merging anything touching auth, payments or file uploads. |
 | `solid-review` | New module or service, a refactor, or a file past ~300 lines. |
 | `ui-verify` | After any component, route or CSS change. Screenshots at three widths. |

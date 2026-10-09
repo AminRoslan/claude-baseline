@@ -28,6 +28,9 @@ claude/
     pre-pr/                pre-PR checklist, ids kept in a project-local config
     frontend-ux/           every UI state, loading patterns by wait time, preloading
                            toggles, optimistic UI, density, accessibility, vitals
+    qa-pass/               the QA stage of the lifecycle: research, independent QA
+                           agents, triage, fix agents, one decisions page, green
+                           combined branch; briefs and a research digest in references/
 githooks/
   commit-msg               attribution gate, installed globally
 ci/

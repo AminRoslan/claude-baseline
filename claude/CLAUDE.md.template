@@ -31,6 +31,24 @@ Before pushing: `git log <base>..HEAD --format='%B'` and check.
 
 - {{WHEN_THIS_HAPPENS}} → `{{SKILL_NAME}}` skill.
 - Building or changing any screen, list, toggle, table, form, dialog or loading behaviour → `frontend-ux` skill.
+- Strict QA, "test everything", or before a batch of PRs reaches staging or production → `qa-pass` skill.
+
+## Development lifecycle (always)
+
+<!--
+  Short on purpose: the procedure, briefs and the decisions page live in the
+  qa-pass skill and only load for a QA pass. Incidents behind each line:
+  DECISIONS.md, "QA and delivery process".
+-->
+
+build → integrate → QA pass → fix → decide → ship. Each stage has a gate; a green stage never skips the next.
+
+- Build: small PRs, one concern, failing test first, the one verify command exits 0.
+- Integrate: one combined test branch with every open PR. Hand it over only when verify and the browser smoke are green on it, by fast-forward, last. Read the result from the log's `EXIT` line, never from a background task's own exit code.
+- QA pass (`qa-pass`): an independent, strict tester runs before any batch reaches staging or production, after a feature wave, and when asked. Findings are triaged, S1s confirmed by the lead, fixes done by senior-engineer agents in their own worktrees, test first, branch pushed, no PR until the lead opens it.
+- Decide: every product or risk call goes on one page with a recommendation first. Answer once; a misunderstanding gets the facts, not a rubber stamp.
+- Ship: PRs written for a cold reader that claim only what a test or measurement showed; draft only while a decision is open. Update the tracker, the API collection and memory. List deploy-time steps (migrations, new required settings) and remind the owner when the stack nears the live branch.
+- A fix found while integrating goes back on the branch that owns the code, so each PR passes alone. A dev server does not prove production behaviour: check that once on a production build and say what was and was not run.
 
 ## Front-end UX baseline (always)
 

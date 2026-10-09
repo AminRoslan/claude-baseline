@@ -271,6 +271,122 @@ out and why.
 
 ---
 
+## QA and delivery process
+
+The `qa-pass` skill is the procedure. These are the incidents that shaped it.
+
+### Every PR was green and the product was still wrong
+
+About forty PRs were open, each passing the full verification command, and the
+combined test branch passed too. A strict, independent QA pass over that branch
+found 126 defects: a closing balance that did not carry forward, a delete that left
+the reports returning errors, financial-year windows that disagreed between two
+accounts of one company, a retried upload that could return another company's job.
+None was a cross-tenant leak, which was checked on every id-taking endpoint, but
+several were wrong money.
+
+**Rule:** QA is a lifecycle stage with its own gate, run by testers who are told to
+find defects and never to fix them, before any batch reaches staging or production.
+A passing verify command proves the checks that exist, not the product.
+
+### A background task said "exit code 0" over a failed run
+
+A long verification ran as a background command. The harness reported it completed
+with exit code 0; the log's own last line said `EXIT 1`. On the first attempt the
+branch was pushed before the log was read.
+
+**Rule:** the result of a gate is the `EXIT` line the command wrote to its own log,
+read before anything is pushed or handed over. A task wrapper's exit code is not
+evidence.
+
+### The fix only worked in the combination
+
+A test failed only on the combined branch, because it asserted a rule that another
+branch had changed. Fixing it on the combined branch alone would have left the
+original PR red, or silently wrong, once merged by itself.
+
+**Rule:** a fix found while integrating goes back on the branch that owns the code,
+and that branch is pushed. Every PR must pass alone; the combined branch is where
+interactions are found, not where they are repaired.
+
+### A brief assumed a screen that did not exist
+
+A follow-up asked for a notice on the screen where an owner corrects a confirmed
+payment. The server side of that correction existed; no screen called it. The agent
+checked the premise, stopped, built nothing, and reported. Had it pressed on, the
+task would have become a new feature disguised as a small notice.
+
+**Rule:** every fix brief starts with a premise check, and says to stop and report
+when the premise is false. Confirm the premise yourself before sending the brief
+when it is cheap to do so.
+
+### One agent popped another agent's stash
+
+Parallel agents each had a worktree. The stash list belongs to the repository, not
+the worktree, so one agent's `git stash pop` applied another agent's stash, and
+conflicted in a file it had never touched. Both recovered, but only because neither
+had dropped the other's entry.
+
+**Rule:** agents do not use `git stash`. Use a throwaway branch or a commit, which
+are per-worktree in effect.
+
+### Flaky tests fixed by waiting longer
+
+Several tests failed only when many suites ran at once. The tempting fix is a retry
+or a longer timeout. Measuring instead found two real causes: a role-based query
+computing the accessible name of every element, about ten times slower under load
+(a 25-card page took 6 to 12 seconds), and the first render paying a cold-start cost
+inside a one-second wait. Each was fixed at its cause, with the same assertions.
+Two other fixes could not be made to fail on demand; their PRs said so and gave the
+probe that showed the race instead.
+
+**Rule:** fix a flaky test at its root cause with a measurement. No retries, no
+longer timeouts, no weaker assertions. Say what was measured and what was inferred.
+
+### A dev server stood in for a production build
+
+A feature downloaded every page's code in the background so an unvisited page would
+open offline. The smoke test could not prove it: the dev server imports a module as
+`file?import` while the preload fetched `file`, so the browser treats them as
+different files. It only worked, and was only provable, on a production build.
+
+**Rule:** anything that depends on how assets are named, cached or preloaded is
+verified once on a production build, and the PR says what was run and what was not.
+Narrow the automated test to what the dev server can show rather than leaving it
+asserting something it cannot reach.
+
+### Real client text in test data
+
+A parser fix copied street names and house numbers from real certificates into its
+tests. It was caught before a PR existed, and replaced with invented values.
+
+**Rule:** the repository, including tests, commit messages and PR bodies, holds
+invented data only. Real samples are used locally, never committed, and appear only
+in the private report to the owner, and then only the fields needed to judge the fix.
+
+### Decisions scattered across a long chat
+
+Twelve decisions and nine questions came out of one QA pass. Spread over messages
+they would have been answered piecemeal, some missed. They went on one page, each
+with options, a recommendation and the cost, and one pasted answer settled most.
+One answer rested on a misunderstanding of what a change would switch on, which only
+surfaced because the page forced the question to be asked plainly.
+
+**Rule:** every owner decision goes on one page, recommendation first. When an answer
+rests on a misunderstanding, correct it with facts and ask again.
+
+### A PR opened as a draft by habit
+
+A change that needs a migration before merge was opened as a draft, although the
+owner's practice is to open it ready and say plainly in the body that it must not be
+merged yet. The draft status told the owner nothing and made it look unfinished.
+
+**Rule:** a PR is a draft only while a decision about it is open, and its body names
+the decision. Anything else is ready for review, with merge conditions stated in the
+first line.
+
+---
+
 ## Front-end and UX
 
 Sources for the rules below: the WeWeb front-end design guide and Smart Interface
