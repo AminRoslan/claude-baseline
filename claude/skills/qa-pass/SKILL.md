@@ -134,6 +134,12 @@ a misunderstanding, correct it with the facts before building.
 - API collection updated for every changed endpoint (and any description a change
   made false).
 - Memory file for the session: PR numbers, decisions, what is owed.
+- A scorecard for the owner when asked how the work or the Claude Code usage is
+  going: re-measure, never recall. `references/token-usage.cjs` totals tokens per
+  model, day and main-vs-subagent from the project's transcripts (counts only);
+  `git log`, `gh pr list` and the last full verify run give delivery and quality.
+  Grade each area against evidence, say which numbers are measured and which
+  are judgement, and show the previous grade next to the new one.
 - Deploy-time steps (data migrations, new required settings) written down with the
   PR that needs them, and the owner reminded when the stack nears the live branch.
 
