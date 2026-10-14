@@ -1,6 +1,6 @@
 ---
 name: explorer
-description: Use to read and map code without changing it: where is X defined, what calls Y, how does module Z fit together. Returns file:line findings, not file dumps.
+description: "Use to read and map code without changing it: where is X defined, what calls Y, how does module Z fit together. Returns file:line findings, not file dumps."
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, Bash

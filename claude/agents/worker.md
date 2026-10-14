@@ -1,6 +1,6 @@
 ---
 name: worker
-description: Use for well-specified edits plus running tests: implement a bounded change, run the relevant checks, report results. Not for design decisions or hard debugging.
+description: "Use for well-specified edits plus running tests: implement a bounded change, run the relevant checks, report results. Not for design decisions or hard debugging."
 model: sonnet
 effort: medium
 ---

@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Use to look up documentation, library or API behaviour, and external facts. Returns sourced findings with links, no code changes.
+description: "Use to look up documentation, library or API behaviour, and external facts. Returns sourced findings with links, no code changes."
 model: sonnet
 effort: medium
 tools: Read, Grep, Glob, WebSearch, WebFetch
