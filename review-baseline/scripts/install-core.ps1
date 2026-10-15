@@ -16,6 +16,9 @@ $marker     = '.from-review-baseline'
 
 New-Item -ItemType Directory -Force -Path $agentsDst, $skillsDst, $baseDst | Out-Null
 
+& (Join-Path $PSScriptRoot 'check-agents.ps1') (Join-Path $root 'core/agents') (Join-Path $root 'packs')
+if ($LASTEXITCODE) { throw 'Agent frontmatter is invalid, nothing was installed.' }
+
 function Get-AgentName($path) { if ((Get-Content $path -Raw) -match '(?m)^name:\s*(\S+)') { $Matches[1] } else { throw "No name in $path" } }
 
 # Agent names must be unique across ~/.claude/agents (Claude Code keys agents by name, not path).
@@ -44,6 +47,7 @@ Copy-Item (Join-Path $root 'packs') $packsDst -Recurse
 New-Item -ItemType Directory -Force -Path (Join-Path $baseDst 'templates') | Out-Null
 Copy-Item (Join-Path $root 'templates/review-overlay.md') (Join-Path $baseDst 'templates') -Force
 Copy-Item (Join-Path $root 'scripts/review-pack.ps1') $baseDst -Force
+Copy-Item (Join-Path $root 'scripts/check-agents.ps1') $baseDst -Force
 Write-Host "packs   $((Get-ChildItem $packsDst -Directory).Name -join ', ') (off by default)"
 
 Write-Host "`nNext, per repo:  /review-setup   (or: pwsh ~/.claude/review-baseline/review-pack.ps1 preset <name>)"

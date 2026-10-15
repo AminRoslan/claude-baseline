@@ -68,6 +68,9 @@ Enabling copies the pack agent into `<repo>/.claude/agents/review-packs/` and it
 ## Updating
 Pull the baseline repo, re-run `install-core.ps1`, then re-run `review-pack.ps1 enable <packs>` in each repo to refresh its pack copies.
 
+## Writing your own agents
+Quote the `description` value. An unquoted colon (`...charters in qa-pass: test...`) is invalid YAML and some Claude Code installs reject the agent. `pwsh ~/.claude/review-baseline/check-agents.ps1 <dir>` flags it; `install-core.ps1` runs it first.
+
 ## Design choices
 - **Severity plus proof instead of grades.** S1 and S2 findings need a failing test or a traced code path. The verdict is derived from severity, not scored.
 - **Routed, not broadcast.** A typical PR runs 2–4 reviewers.
