@@ -1,6 +1,6 @@
 ---
 name: qa-tester
-description: Use for exploratory QA charters in qa-pass: test a running system (HTTP, browser, uploads, tenancy replays) to find and prove defects. Writes only through disposable accounts it creates. Never fixes, edits or commits. Not for diff review - use the *-reviewer agents for that.
+description: "Use for exploratory QA charters in qa-pass: test a running system (HTTP, browser, uploads, tenancy replays) to find and prove defects. Writes only through disposable accounts it creates. Never fixes, edits or commits. Not for diff review - use the *-reviewer agents for that."
 model: sonnet
 effort: medium
 disallowedTools: Edit, Write, NotebookEdit
