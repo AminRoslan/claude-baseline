@@ -516,6 +516,79 @@ What the source machine learned setting it up:
   agents, so a restore would have come up without the workers and reported
   success. Agents are now part of `-InstallUserConfig`.
 
+### Authorship rule written in prose while the harness said the opposite
+
+The "no Co-Authored-By, no Generated-with" rule lived in CLAUDE.md and a global
+`commit-msg` hook (see above). Every session the harness still injected a
+reminder telling the model to add those lines, so each commit and PR body had to
+be checked and the model had to choose between two instructions.
+
+**Rule:** switch the trailer off at its source with the `attribution` setting
+(`{"commit": "", "pr": ""}`; `sessionUrl` is for cloud and Remote Control only).
+`includeCoAuthoredBy` is the deprecated spelling. The CLAUDE.md rule and the
+commit-msg hook stay as the backstop: the setting stops the model writing the
+line, the hook catches `--no-verify` and other machines.
+
+**Check it took:** the attribution reminder should no longer appear in a new
+session's context; if it does, the key is in the wrong file or misspelt.
+Source: Claude Code settings reference (`attribution`, `includeCoAuthoredBy`).
+
+### An `autoMode` block in a project's `settings.local.json` did nothing
+
+The auto-mode classifier reads `autoMode` only from user settings
+(`~/.claude/settings.json`), managed settings or `--settings`. A block in
+`.claude/settings.json` or `.claude/settings.local.json` is ignored without any
+error, so exception rules written there looked in place and never applied.
+
+**Rule:** author `autoMode` per machine in the user settings (still never
+committed, see above) and run `claude auto-mode config` to see the rules the
+classifier actually has; `claude auto-mode critique` reviews them. Grep every
+repo's local settings for a stray `autoMode` key when setting up a machine. Ask
+rules (`permissions.ask`) are the checkpoint that holds even in auto mode, but
+a pattern such as `Bash(git push *)` is bypassed by `git -C dir push`, so keep a
+hook behind any ask rule that guards a deploy branch.
+Source: the Claude Code auto-mode configuration page and settings reference
+(`autoMode`: scope "User or managed").
+
+### Long sessions: correcting on top of a wrong turn
+
+Stacked corrections, test logs read in the main thread and a compaction that
+dropped the gate command all came from the same habit: treating one session as
+a notebook. **Rule:** a short "Context hygiene" block in the user CLAUDE.md
+(rewind instead of correcting, `/clear` per task, compact early with a hint,
+noisy output to a subagent, re-state the gate and authorship rule after a
+compact, and name the paths an agent must never touch in every brief). The last
+point came from an agent whose link script damaged a shared `node_modules`.
+
+### Community best-practice repo reviewed; what was and was not taken
+
+`shanraisshan/claude-code-best-practice` (a community reference, not
+Anthropic's; latest commits 2026-10-15, claims coverage to Claude Code v2.1.300)
+was compared against this setup. Its settings, subagent and skill reference
+pages mirror the official docs and are reliable; its tips are second-hand
+quotes and its reports include opinion.
+
+*Taken:* the `attribution` setting; the `autoMode` location finding; the context
+hygiene block.
+
+*Noted, not applied (each changes behaviour and needs a deliberate decision):*
+`permissions.ask` on `git push` and `gh pr create`; `disable-model-invocation:
+true` on skills with side effects (it would stop trigger-phrase auto-loading, so
+keep it off any skill that must auto-fire); `paths:` globs on domain skills;
+`maxTurns` and `isolation: worktree` on write-capable agents (test one first:
+agents here push branches from their own worktrees); a `PermissionDenied` log
+hook; a `PostCompact` hook that re-injects the gate command; the hook `if:`
+field so the push guard only spawns on `git push`; `worktree.symlinkDirectories`
+and `plansDirectory`; agent `memory:` scope (use `local` or `user` only, never
+project, because Claude files stay out of repos).
+
+*Rejected:* the workflow frameworks (Spec Kit, BMAD, RPI and similar) because
+they duplicate the build, integrate, QA, fix, decide, ship lifecycle and
+overlapping skill collections shadow each other; Agent Teams, `/loop` and
+Ralph-style autonomy because a person codes and decides; cross-model workflows
+for regulated bank and tax data; "one file per commit" because it conflicts with
+one-concern PRs; hook sound packs.
+
 ## Ignore policy
 
 The source repository ignores `*.md` (except `README.md`) and the whole agent config

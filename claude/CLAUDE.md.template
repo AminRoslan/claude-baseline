@@ -64,6 +64,14 @@ build → integrate → QA pass → fix → decide → ship. Each stage has a ga
 - One primary action per screen, one number per fact, plain words. Every dialog has a close icon, Escape and focus return.
 - Verify with the one command, and make the browser smoke part of it.
 
+## Context hygiene (long sessions)
+
+- Wrong turn: rewind (Esc Esc or /rewind) to before it, do not stack corrections on top.
+- One task per session: /clear between unrelated tasks. Compact early with a hint (`/compact keep the verify command, branch list and decisions`), not at the autocompact cliff.
+- Noisy output (test logs, diffs, searches) goes to a subagent that returns the conclusion.
+- After a compact, re-state the gate command and the authorship rule before continuing.
+- Agent briefs: say which paths an agent must never touch (shared `node_modules`, the owner's checkout) and to stop and report if something is missing.
+
 ## Advisor
 
 <!--
