@@ -560,6 +560,27 @@ noisy output to a subagent, re-state the gate and authorship rule after a
 compact, and name the paths an agent must never touch in every brief). The last
 point came from an agent whose link script damaged a shared `node_modules`.
 
+### Status read as done while the screens did not match the request
+
+A long run of work was reported through green gates, drafted PRs and QA passes. The
+owner then opened the product and found whole screens still unlike the reference they
+had asked to follow strictly: three of five phases had never been started, and no
+report had said so. Nothing was invented; progress was inferred from checks that only
+prove nothing broke. The owner asked whether the model was hallucinating, and then
+pointed at the vendor's guide on reducing hallucinations (allow "I don't know",
+ground answers in quotes, verify each claim against a source, restrict to supplied
+material, compare repeated runs).
+
+**Rule:** a short "Grounding and honest status" block in the user CLAUDE.md: keep the
+owner's original requirement list and re-compare the build against it item by item in
+every report; label each claim measured, read from code or a log, agent-reported or
+inferred; check agent hand-backs (head, author, gate log, one screenshot) before
+repeating them; cite an outside product's wording only from a page actually read;
+support every claim in a PR body with a test or measurement; get an independent
+second pass for decisions and severity-one verdicts.
+Source: the vendor guide "Reduce hallucinations" (test-and-evaluate, strengthen
+guardrails).
+
 ### Community best-practice repo reviewed; what was and was not taken
 
 `shanraisshan/claude-code-best-practice` (a community reference, not
