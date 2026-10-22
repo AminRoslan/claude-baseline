@@ -60,8 +60,11 @@ Reviewers that run with `isolation: worktree` (correctness-reviewer) branch from
 ```
 
 ## 7. Log
-Append one line per reviewer to `.claude/review-log.jsonl`:
+Mandatory: a report is not final until its lines are written, one per dispatched reviewer, in this repo's `.claude/review-log.jsonl` (create it if missing). Skipped or failed dispatches get a line too, with `"findings":0` and a `"note"`.
+
 `{"date":"<ISO>","skill":"review-pass","repo":"<dir name>","head":"<sha>","agent":"<name>","findings":<n>,"s1":<n>,"s2":<n>,"dropped":<n>,"accepted":null}`
+
+Acceptance: once the owner has decided, rewrite this run's lines and set `accepted` to the number of that reviewer's findings the owner accepted (fix routed, or confirmed as real). Leave it `null` only while a decision is open, and say so in the report. This is the only data that shows which reviewers earn their cost.
 
 ## 8. After
 Offer to route fixes by each finding's route: `worker` routine, `deep-reasoner` trust boundary; `owner` items wait. If those agents don't exist on this machine, use the main session. Fixers never commit with AI trailers and never open PRs.
